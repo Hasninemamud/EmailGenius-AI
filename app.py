@@ -1,16 +1,19 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Required for session management
 
 # API endpoint and headers
 API_URL = "https://api.hyperbolic.xyz/v1/chat/completions"
 HEADERS = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoYXNuaW5laGVtZWw4NUBnbWFpbC5jb20iLCJpYXQiOjE3Mzk1NjM2ODB9.EvhP5MqdQCxyr86WSisIIzAekMdTBZ788J7qd87kg28"
+    "Authorization": f"Bearer {os.getenv('API_KEY')}"
 }
-
-import requests
 
 def query_llama(prompt):
     data = {
