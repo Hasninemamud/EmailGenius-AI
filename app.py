@@ -10,21 +10,30 @@ HEADERS = {
     "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoYXNuaW5laGVtZWw4NUBnbWFpbC5jb20iLCJpYXQiOjE3Mzk1NjM2ODB9.EvhP5MqdQCxyr86WSisIIzAekMdTBZ788J7qd87kg28"
 }
 
+import requests
+
 def query_llama(prompt):
     data = {
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
+        "messages": [{"role": "user", "content": prompt}],
         "model": "meta-llama/Llama-3.3-70B-Instruct",
         "max_tokens": 512,
         "temperature": 0.1,
         "top_p": 0.9
     }
-    response = requests.post(API_URL, headers=HEADERS, json=data)
-    return response.json()
+    
+    try:
+        response = requests.post(API_URL, headers=HEADERS, json=data)
+        response_json = response.json()
+
+        # Log the full response
+        print("API Response:", response_json)
+
+        if "choices" in response_json and response_json["choices"]:
+            return response_json
+        else:
+            return {"error": "Invalid response format from API"}
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Request failed: {str(e)}"}
 
 @app.route("/")
 def home():
@@ -43,18 +52,24 @@ def about():
 def generate():
     """Handles text generation requests with formatted output"""
     prompt = request.json.get("prompt")
+    
     if not prompt:
         return jsonify({"error": "No prompt provided"}), 400
 
     response = query_llama(prompt)
 
+    # Check if API returned an error
+    if "error" in response:
+        return jsonify({"error": response["error"]}), 500
+
     # Extract response text safely
     generated_text = response.get("choices", [{}])[0].get("message", {}).get("content", "No response")
 
-    # Format response (e.g., adding line breaks)
-    formatted_text = generated_text.replace("\n", "<br>")  # Convert newlines for HTML rendering
+    # Format response for HTML rendering
+    formatted_text = generated_text.replace("\n", "<br>")
 
     return jsonify({"generated_text": formatted_text})
+
 
 if __name__ == "__main__":
     import os
