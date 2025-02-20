@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailGenius AI - Chat Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                    }
+                }
+            }
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function sendPrompt() {
+            let promptText = document.getElementById("prompt").value;
+            if (!promptText.trim()) return;
+
+            document.getElementById("response").innerHTML = '<p class="text-gray-400 italic">Generating response...</p>';
+
+            fetch("/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "prompt": promptText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").innerHTML = `<p>${data.generated_text}</p>`;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("response").innerHTML = '<p class="text-red-500">An error occurred while generating the response.</p>';
+            });
+        }
+    </script>
+</head>
+
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="fixed w-full z-50 bg-gray-900 bg-opacity-95 shadow-md">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-envelope-open-text text-blue-400 mr-2"></i>EmailGenius AI
+            </div>
+            <button id="menu-button" onclick="toggleMenu()" class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+            <div class="hidden md:flex space-x-6">
+                
+                <a href="/chatAI" class="text-gray-300 hover:text-white transition duration-200">Generate Email</a>
+                <a href="/" class="block text-gray-300 hover:text-white">Home</a>
+                <a href="/about" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-full transition duration-200">About Us</a>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 shadow-md py-4 px-6 space-y-2">
+            <a href="/chatAI" class="block text-gray-300 hover:text-white">Generate Email</a>
+            <a href="/" class="block text-gray-300 hover:text-white">Home</a>
+            <a href="/about" class="block text-gray-300 hover:text-white">About Us</a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center pt-20">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-4xl font-bold text-center mb-8 text-blue-400">AI Email Assistant</h1>
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 text-secondary">Your Input</h2>
+                    <textarea 
+                        id="prompt" 
+                        rows="6" 
+                        class="w-full bg-gray-700 text-gray-100 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        placeholder="Enter your email content or instructions..."></textarea>
+                </div>
+                <button 
+                    onclick="sendPrompt()" 
+                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors text-lg font-semibold">
+                    Generate Email
+                </button>
+                <div class="mt-6">
+                    <h2 class="text-xl font-semibold mb-4 text-secondary">AI Response</h2>
+                    <div id="response" class="bg-gray-700 rounded-lg p-4 min-h-[200px] max-h-[400px] overflow-y-auto">
+                        <p class="text-gray-400 italic">AI generated email will appear here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 py-4 text-center text-gray-400">
+        <p>&copy; 2025 EmailGenius AI. All rights reserved.</p>
+    </footer>
+</body>
+</html>
