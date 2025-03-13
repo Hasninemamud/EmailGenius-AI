@@ -12,7 +12,7 @@ app.secret_key = os.urandom(24)  # Required for session management
 API_URL = "https://api.hyperbolic.xyz/v1/chat/completions"
 HEADERS = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {os.getenv('API_KEY')}"
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoYXNuaW5laGVtZWw4NUBnbWFpbC5jb20iLCJpYXQiOjE3Mzk1NjM2ODB9.EvhP5MqdQCxyr86WSisIIzAekMdTBZ788J7qd87kg28"
 }
 
 def query_llama(prompt, history=None):
